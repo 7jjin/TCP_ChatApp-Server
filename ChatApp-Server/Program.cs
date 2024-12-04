@@ -26,6 +26,7 @@ namespace ChatApp_Server
             if (Database.Connect())
             {
                 Log("DB", $"Server {Database.hostname} is connected");
+                users = Database.GetUsers();
             }
             else
             {

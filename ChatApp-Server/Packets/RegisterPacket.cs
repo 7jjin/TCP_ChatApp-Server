@@ -1,4 +1,5 @@
 ﻿using ChatApp_Server.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +11,9 @@ namespace ChatApp_Server.Packets
     [Serializable]
     public class RegisterPacket : Packet
     {
-        public bool success = false;
-
-        public User user;
+        public bool success { get; set; }
+        public User user { get; set; }
+        public RegisterPacket() { }
 
         public RegisterPacket(bool success)
         {

@@ -10,6 +10,7 @@ using System.Runtime.Remoting;
 using System.Runtime.Remoting.Messaging;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -74,26 +75,23 @@ namespace ChatApp_Server.Classes
                 }
 
                 // 패킷 번역
-                object packetObj = null;
                 try
                 {
-                    packetObj = Packet.Deserialize(AES256.Decrypt(readBuffer));
-                }
-                catch (Exception ex)
-                {
-                    {
-                        Log("Deserialize", ex.ToString());
-                        // 수신 버퍼 리셋
-                        while (ns.ReadByte() != 1) ;
-                    }
-                    if (packetObj == null) continue;
+                    // AES256 해독 후 JSON 기반 역직렬화
+                    string decryptedJson = Encoding.UTF8.GetString(AES256.Decrypt(readBuffer));
+                    Packet packet = JsonSerializer.Deserialize<Packet>(decryptedJson);
 
-                    Packet packet = packetObj as Packet;
+                    // 역직렬화 후 타입 확인
+                    if (packet == null)
+                    {
+                        Log("Deserialize", "패킷 역직렬화 실패");
+                        continue;
+                    }
 
                     // 연결
                     if (packet.type == PacketType.Header)
                     {
-                        Log("Waring", "Receieved no length HeaderPacket");
+                        Log("Warning", "Received no length HeaderPacket");
                     }
                     else if (packet.type == PacketType.Close)
                     {
@@ -101,25 +99,25 @@ namespace ChatApp_Server.Classes
                         socket.Close();
                         break;
                     }
-
                     // 로그인
                     else if (packet.type == PacketType.Login)
                     {
-                        LoginPacket p = packet as LoginPacket;
-                        // 변경점
-                        User user = Database.Login(p.users[default].id, p.users[default].password);
+                        // 로그인 패킷 역직렬화
+                        LoginPacket loginPacket = JsonSerializer.Deserialize<LoginPacket>(decryptedJson);
+                        User user = Database.Login(loginPacket.users[default].id, loginPacket.users[default].password);
                         if (user != null)
                         {
-                            Log("Login", string.Format("{0} 로그인 실패", p.users[default].id));
-                            p.success = false;
+                            Log("Login", $"{loginPacket.users[default].id} 로그인 성공");
+                            loginPacket.success = true;
                         }
                         else
                         {
-                            Log("Login", "로그인 성공");
-                            p = new LoginPacket(true, Program.users);
+                            Log("Login", $"{loginPacket.users[default].id} 로그인 실패");
+                            loginPacket.success = false;
                         }
+
                         Thread.Sleep(200);
-                        Send(p);
+                        Send(loginPacket);
                     }
                     // 로그아웃
                     else if (packet.type == PacketType.Logout)
@@ -131,18 +129,32 @@ namespace ChatApp_Server.Classes
                     // 회원가입
                     else if (packet.type == PacketType.Register)
                     {
-                        RegisterPacket p = packet as RegisterPacket;
-                        if (p.success = Database.Register(p.user))
+                        RegisterPacket registerPacket = JsonSerializer.Deserialize<RegisterPacket>(decryptedJson);
+                        if (registerPacket.success = Database.Register(registerPacket.user))
                         {
-                            Program.users.Add(p.user.id, user = p.user);
+                            Program.users.Add(registerPacket.user.id, user = registerPacket.user);
                             Log("Register", "회원가입 성공");
                         }
                         else
+                        {
                             Log("Register", "회원가입 실패");
-                        Send(p);
-                    }
+                        }
 
+                        Send(registerPacket);
+                    }
                 }
+                catch (Exception ex)
+                {
+                    Log("Deserialize", ex.ToString());
+
+                    // 수신 버퍼 리셋
+                    while (ns.ReadByte() != -1) ;
+                    continue;
+                }
+
+
+
+
             }
         }
 

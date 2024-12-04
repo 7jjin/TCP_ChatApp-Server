@@ -4,6 +4,7 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -84,6 +85,25 @@ namespace ChatApp_Server.Classes
                 Program.Log("DB", ex.ToString());
                 return false;
             }
+        }
+
+        // 사용 중인 유저
+        public static Dictionary<string, User> GetUsers()
+        {
+            string command = "SELECT id, name, phoneNumber FROM users";
+            SqlCommand cmd = new SqlCommand(command, con);
+            Dictionary<string, User> users = new Dictionary<string, User>();
+
+            using (SqlDataReader rdr = cmd.ExecuteReader())
+                while (rdr.Read())
+                {
+                    users.Add((string)rdr["id"], new User(
+                        (string)rdr["id"],
+                        (string)rdr["name"],
+                        string.Empty,
+                        (string)rdr["phoneNumber"]));
+                }
+            return users;
         }
 
     }
