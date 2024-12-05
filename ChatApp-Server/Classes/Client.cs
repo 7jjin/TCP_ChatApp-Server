@@ -142,6 +142,24 @@ namespace ChatApp_Server.Classes
 
                         Send(registerPacket);
                     }
+                    // 아이디 중복 체크
+                    else if (packet.type == PacketType.IdCheck)
+                    {
+                        IdCheckPacket idCheckPacket = JsonSerializer.Deserialize<IdCheckPacket>(decryptedJson);
+                        if (!Database.IdCheck(idCheckPacket.id))
+                        {
+                            //Program.users.Add(registerPacket.user.id, user = registerPacket.user);
+                            idCheckPacket.success = true;
+                            Log("Register", "회원가입 성공");
+                        }
+                        else
+                        {
+                            idCheckPacket.success = false;
+                            Log("Register", "회원가입 실패");
+                        }
+
+                        Send(idCheckPacket);
+                    }
                 }
                 catch (Exception ex)
                 {

@@ -66,7 +66,11 @@ namespace ChatApp_Server.Classes
             return null;
         }
 
-        // 회원가입
+        /// <summary>
+        /// 회원가입 로직
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public static bool Register(User user)
         {
             string command = "INSERT INTO users (id, name, password, phoneNumber) VALUES (@id, @name, @password, @phoneNumber)";
@@ -87,7 +91,10 @@ namespace ChatApp_Server.Classes
             }
         }
 
-        // 사용 중인 유저
+        /// <summary>
+        /// 사용중인 유저 확인하는 로직
+        /// </summary>
+        /// <returns></returns>
         public static Dictionary<string, User> GetUsers()
         {
             string command = "SELECT id, name, phoneNumber FROM users";
@@ -106,5 +113,23 @@ namespace ChatApp_Server.Classes
             return users;
         }
 
+        public static bool IdCheck(string id)
+        {
+            string command = "SELECT COUNT(*) FROM users WHERE id = @id";
+            SqlCommand cmd = new SqlCommand(command, con);
+            cmd.Parameters.AddWithValue("@id", id);
+
+            try
+            {
+                int count = (int)cmd.ExecuteScalar();
+
+                return count > 0;
+            }
+            catch (SqlException ex)
+            {
+                Program.Log("DB", ex.ToString());
+                return false;
+            }
+        }
     }
 }
