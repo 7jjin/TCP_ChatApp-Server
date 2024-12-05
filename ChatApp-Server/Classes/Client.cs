@@ -104,7 +104,7 @@ namespace ChatApp_Server.Classes
                     {
                         // 로그인 패킷 역직렬화
                         LoginPacket loginPacket = JsonSerializer.Deserialize<LoginPacket>(decryptedJson);
-                        User user = Database.Login(loginPacket.users[default].id, loginPacket.users[default].password);
+                        User user = Database.Login(loginPacket.users[0].id, loginPacket.users[0].password);
                         if (user != null)
                         {
                             Log("Login", $"{loginPacket.users[default].id} 로그인 성공");
@@ -148,7 +148,6 @@ namespace ChatApp_Server.Classes
                         IdCheckPacket idCheckPacket = JsonSerializer.Deserialize<IdCheckPacket>(decryptedJson);
                         if (!Database.IdCheck(idCheckPacket.id))
                         {
-                            //Program.users.Add(registerPacket.user.id, user = registerPacket.user);
                             idCheckPacket.success = true;
                             Log("Register", "회원가입 성공");
                         }

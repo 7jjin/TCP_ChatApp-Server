@@ -10,18 +10,23 @@ namespace ChatApp_Server.Packets
     [Serializable]
     public class LoginPacket : Packet
     {
-        public Dictionary<string, User> users;
+        //public Dictionary<string, User> users;
 
-        public bool success = false;
+        //public bool success = false;
+
+        public bool success { get; set; }
+        public Dictionary<int, User> users { get; set; }
+
+        public LoginPacket() { }
 
         public LoginPacket(string id, string password)
         {
             type = PacketType.Login;
-            users = new Dictionary<string, User>();
-            users.Add("default", new User(id, password));
+            users = new Dictionary<int, User>();
+            users.Add(0, new User(id, password));
         }
 
-        public LoginPacket(bool success, Dictionary<string, User> users)
+        public LoginPacket(bool success, Dictionary<int, User> users)
         {
             type = PacketType.Login;
 
