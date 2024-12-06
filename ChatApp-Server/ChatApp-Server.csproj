@@ -85,6 +85,7 @@
     <Compile Include="Models\Users.cs" />
     <Compile Include="Packets\IdCheckPacket.cs" />
     <Compile Include="Packets\LoginPacket.cs" />
+    <Compile Include="Packets\LogoutPacket.cs" />
     <Compile Include="Packets\Packet.cs" />
     <Compile Include="Packets\RegisterPacket.cs" />
     <Compile Include="Program.cs" />

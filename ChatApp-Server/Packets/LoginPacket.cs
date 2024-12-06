@@ -10,10 +10,6 @@ namespace ChatApp_Server.Packets
     [Serializable]
     public class LoginPacket : Packet
     {
-        //public Dictionary<string, User> users;
-
-        //public bool success = false;
-
         public bool success { get; set; }
         public Dictionary<int, User> users { get; set; }
 
@@ -29,7 +25,6 @@ namespace ChatApp_Server.Packets
         public LoginPacket(bool success, Dictionary<int, User> users)
         {
             type = PacketType.Login;
-
             this.success = success;
             this.users = users;
         }

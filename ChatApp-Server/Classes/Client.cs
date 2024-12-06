@@ -104,17 +104,18 @@ namespace ChatApp_Server.Classes
                     {
                         // 로그인 패킷 역직렬화
                         LoginPacket loginPacket = JsonSerializer.Deserialize<LoginPacket>(decryptedJson);
-                        User user = Database.Login(loginPacket.users[0].id, loginPacket.users[0].password);
-                        if (user != null)
-                        {
-                            Log("Login", $"{loginPacket.users[default].id} 로그인 성공");
-                            loginPacket.success = true;
-                        }
-                        else
+                        User loginUser = Database.Login(loginPacket.users[0].id, loginPacket.users[0].password);
+                        if (user == null)
                         {
                             Log("Login", $"{loginPacket.users[default].id} 로그인 실패");
                             loginPacket.success = false;
                         }
+                        else
+                        {
+                            Log("Login", $"{loginPacket.users[default].id} 로그인 성공");
+                            loginPacket.success = true;
+                        }
+
 
                         Thread.Sleep(200);
                         Send(loginPacket);
